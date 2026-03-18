@@ -21,6 +21,13 @@
             <version>2.13.2</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.7</version>
+        </dependency>
+
     </dependencies>
 
 </project>
