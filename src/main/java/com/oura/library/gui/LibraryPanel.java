@@ -4,17 +4,22 @@ import com.oura.library.model.Book;
 import com.oura.library.model.LibraryManager;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 
 public class LibraryPanel extends JPanel {
     private final LibraryManager manager;
     private final JTable table;
     private final DefaultTableModel tableModel;
+    private TableRowSorter<DefaultTableModel> sorter;
 
     private final JTextField titleField;
     private final JTextField authorField;
     private final JTextField isbnField;
+    private JTextField searchField;
 
     public LibraryPanel(LibraryManager manager) {
         this.manager = manager;
@@ -38,10 +43,37 @@ public class LibraryPanel extends JPanel {
         JButton addButton = new JButton("Add Book");
         addButton.setBackground(new Color(46, 139, 87)); // Verde
         addButton.setForeground(Color.WHITE);
+        addButton.setFocusable(false);
         addButton.addActionListener(e -> addBook());
         topPanel.add(addButton);
 
         this.add(topPanel, BorderLayout.NORTH);
+
+        JPanel centerPanel = new JPanel(new BorderLayout(0, 10));
+
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        searchPanel.add(new JLabel("\uD83D\uDD0D Search:"));
+        searchField = new JTextField(25);
+
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filterTable();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filterTable();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filterTable();
+            }
+        });
+
+        searchPanel.add(searchField);
+        centerPanel.add(searchPanel, BorderLayout.NORTH);
 
         String[] columns = {"Title", "Author", "ISBN", "State"};
         tableModel = new DefaultTableModel(columns, 0) {
@@ -53,8 +85,13 @@ public class LibraryPanel extends JPanel {
         table = new JTable(tableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+        sorter = new TableRowSorter<>(tableModel);
+        table.setRowSorter(sorter);
+
         JScrollPane scrollPane = new JScrollPane(table);
-        this.add(scrollPane, BorderLayout.CENTER);
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
+
+        this.add(centerPanel, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new FlowLayout());
 
@@ -70,6 +107,15 @@ public class LibraryPanel extends JPanel {
         this.add(bottomPanel, BorderLayout.SOUTH);
 
         updateTable();
+    }
+
+    private void filterTable() {
+        String searchText = searchField.getText();
+        if (searchText.trim().isEmpty()) {
+            sorter.setRowFilter(null);
+        } else {
+            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
+        }
     }
 
     private void addBook() {
@@ -91,7 +137,8 @@ public class LibraryPanel extends JPanel {
     private void lendSelectedBook() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow >= 0) {
-            String isbn = (String) tableModel.getValueAt(selectedRow, 2);
+            int realRow = table.convertRowIndexToModel(selectedRow);
+            String isbn = (String) tableModel.getValueAt(realRow, 2);
             if (manager.borrowBook(isbn)) {
                 updateTable();
             } else {
@@ -103,7 +150,8 @@ public class LibraryPanel extends JPanel {
     private void returnSelectedBook() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow >= 0) {
-            String isbn = (String) tableModel.getValueAt(selectedRow, 2);
+            int realRow = table.convertRowIndexToModel(selectedRow);
+            String isbn = (String) tableModel.getValueAt(realRow, 2);
             if (manager.returnBook(isbn)) {
                 updateTable();
             } else {
