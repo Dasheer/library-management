@@ -101,8 +101,16 @@ public class LibraryPanel extends JPanel {
         JButton returnButton = new JButton("Return Selected");
         returnButton.addActionListener(e -> returnSelectedBook());
 
+        JButton statsButton = new JButton("\uD83D\uDCCA Show Stats");
+        statsButton.setBackground(new Color(70, 130, 180));
+        statsButton.setForeground(Color.WHITE);
+        statsButton.setFocusable(false);
+        statsButton.addActionListener(e -> showStats());
+
         bottomPanel.add(borrowButton);
         bottomPanel.add(returnButton);
+        bottomPanel.add(new JLabel("    |   "));
+        bottomPanel.add(statsButton);
 
         this.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -116,6 +124,27 @@ public class LibraryPanel extends JPanel {
         } else {
             sorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
         }
+    }
+
+    private void showStats() {
+        int totalBooks = manager.getBooks().size();
+        int availableBooks = 0;
+        int borrowedBooks = 0;
+
+        for (Book book : manager.getBooks()) {
+            if (book.isAvailable()) {
+                availableBooks++;
+            } else {
+                borrowedBooks++;
+            }
+        }
+
+        String message = "Current summary of your library\n\n"
+                + "\uD83D\uDCDA Total number of books registered: " + totalBooks + "\n"
+                + "✅ Books on shelf (Available): " + availableBooks + "\n"
+                + "\uD83D\uDCD5 Books out (Borrowed): " + borrowedBooks;
+
+        JOptionPane.showMessageDialog(this, message, "Stats", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void addBook() {
