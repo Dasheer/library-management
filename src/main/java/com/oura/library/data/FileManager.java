@@ -17,14 +17,14 @@ public class FileManager {
     private static final String FILE_NAME = "book.json";
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    private static File getfile() {
+    private static File getFile() {
         File appDir = new File(USER_NAME, APP_DIR_NAME);
         if (!appDir.exists()) appDir.mkdirs();
         return new File(appDir, FILE_NAME);
     }
 
     public static void saveLibrary(List<Book> books) {
-        try (FileWriter writer = new FileWriter(FILE_NAME)) {
+        try (FileWriter writer = new FileWriter(getFile())) {
             gson.toJson(books, writer);
         } catch (IOException e) {
             System.err.println("Error saving book: " + e.getMessage());
@@ -38,7 +38,7 @@ public class FileManager {
     }
 
     public static List<Book> loadLibrary() {
-        File file = new File(FILE_NAME);
+        File file = getFile();
 
         if (!file.exists()) {
             return new ArrayList<>();

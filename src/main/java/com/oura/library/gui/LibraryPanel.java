@@ -8,11 +8,13 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class LibraryPanel extends JPanel {
-    private LibraryManager manager;
-    private JTable table;
-    private DefaultTableModel tableModel;
+    private final LibraryManager manager;
+    private final JTable table;
+    private final DefaultTableModel tableModel;
 
-    private JTextField titleField, authorField, isbnField;
+    private final JTextField titleField;
+    private final JTextField authorField;
+    private final JTextField isbnField;
 
     public LibraryPanel(LibraryManager manager) {
         this.manager = manager;
@@ -93,7 +95,7 @@ public class LibraryPanel extends JPanel {
             if (manager.borrowBook(isbn)) {
                 updateTable();
             } else {
-                JOptionPane.showMessageDialog(this, "Book is already available.", "Warning", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Book is already borrowed.", "Warning", JOptionPane.WARNING_MESSAGE);
             }
         }
     }
@@ -105,7 +107,7 @@ public class LibraryPanel extends JPanel {
             if (manager.returnBook(isbn)) {
                 updateTable();
             } else {
-                JOptionPane.showMessageDialog(this, "Book is already in the library.", "Warning", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Book is already available.", "Warning", JOptionPane.WARNING_MESSAGE);
             }
         }
     }
